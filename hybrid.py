@@ -17,11 +17,11 @@ from lightfm import LightFM
 #from skopt import forest_minimize
 
 def sample_recommendation_user(model, interactions, user_id, user_dict, 
-                               item_dict,threshold = 0,nrec_items = 5, show = True):
+                               item_dict,threshold = 0,nrec_items = 10, show = True):
     
     n_users, n_items = interactions.shape
     user_x = user_dict[user_id]
-    scores = pd.Series(model.predict(user_x,np.arange(n_items), item_features=content_interaction_csr))
+    scores = pd.Series(model.predict(user_x,np.arange(n_items), item_features=person_interaction_csr))
     scores.index = interactions.columns
     scores = list(pd.Series(scores.sort_values(ascending=False).index))
     
@@ -119,6 +119,9 @@ item_dict ={}
 df = grouped_df[['content_id', 'title']].sort_values('content_id').reset_index()
 #grouped_df.to_csv("3.csv",index=False)
 #person_csr = csr_matrix(content_interaction.drop('content_id', axis=1).values)
+person_interaction = pd.pivot_table(grouped_df, index='content_id', columns='person_id', values='eventStrength')
+person_interaction = person_interaction.fillna(0)
+person_interaction_csr = csr_matrix(person_interaction.values)
 
 for i in range(df.shape[0]):
     item_dict[(df.loc[i,'content_id'])] = df.loc[i,'title']
@@ -138,11 +141,11 @@ model = LightFM(loss='warp',
                 user_alpha=0.000005)
 
 model = model.fit(content_interaction_csr,
-                  epochs=10,
+                  epochs=100,
                   num_threads=16, verbose=False)
 
 #recommendations = recommend(50, sparse_person_content, user_dict, item_dict)
 #sample_recommendation_user(model, np.array((grouped_df['eventStrength'].astype(float), (grouped_df['content_id'], grouped_df['person_id']))), 50, user_dict, item_dict)
-#sample_recommendation_user(model,content_interaction_csr , 50, user_dict, item_dict)
+sample_recommendation_user(model,content_interaction , 50, user_dict, item_dict)
 
 
