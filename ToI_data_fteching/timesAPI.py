@@ -1,5 +1,6 @@
 import requests
 import json
+import urllib.request, json 
 
 url = "https://devru-times-of-india.p.rapidapi.com/feeds/feedurllist.cms"
 
@@ -18,4 +19,24 @@ g=s["item"]
 res = json.loads(g) 
 for l in res["Item"]:
 	if(l["name"]=="Sports"):
-		print(l)
+		s=l['sectionurl']
+
+#print(s)
+with urllib.request.urlopen(s) as url:
+	data = json.loads(url.read().decode())
+	sec=data
+#print(sec)
+
+for j in sec["Item"]:
+	if(j["category"]=='Cricket'):
+		url=j['url']
+
+with urllib.request.urlopen(url) as url:
+	data = json.loads(url.read().decode())
+	main=data
+
+for g in main['NewsItem']:
+	print(g["HeadLine"])
+	print(g["WebURL"])
+	print("-------------------------------------------------------------------------------------------------------")
+
