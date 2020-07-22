@@ -69,7 +69,7 @@ def predict():
     content_vecs = sparse.csr_matrix(model.item_factors)
     person_id = 50
     recommendations = recommend(person_id, sparse_person_content, person_vecs, content_vecs)
-    return render_template('index.html', prediction_text= recommendations)
+    return render_template('index.html', prediction_text= recommendations['title'])
 
 
 
